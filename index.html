@@ -1,0 +1,666 @@
+import React, { useState, useEffect } from 'react';
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [menuFilter, setMenuFilter] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [catMeowMessage, setCatMeowMessage] = useState('');
+
+  // Interactive Co-Cooking Calculator State
+  const [calcGuests, setCalcGuests] = useState(4);
+  const [needIngredientHelp, setNeedIngredientHelp] = useState(true);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    date: '',
+    guests: '2',
+    type: 'coffee',
+    notes: ''
+  });
+
+  const menuItems = [
+    {
+      id: 1,
+      category: 'mains',
+      name: '招牌香氣家常炒飯',
+      price: 220,
+      description: '粒粒分明、鑊氣十足的特製家常炒飯，搭配季節小菜與溫熱例湯，最純粹的家的味道。',
+      image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 2,
+      category: 'drinks',
+      name: '艸田招牌特調牧草汁',
+      price: 150,
+      description: '新鮮特選牧草搭配水果微甜去草青味，口感爽俐清甜，為身體補充滿滿自然綠色能量。',
+      image: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 3,
+      category: 'desserts',
+      name: '自慢手作經典重乳酪',
+      price: 140,
+      description: '使用優質奶油乳酪烘烤，質地濃郁綿密，入口滑順，帶有些微新鮮檸檬皮清香。',
+      image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 4,
+      category: 'mains',
+      name: '日光溫馨手作早午餐',
+      price: 280,
+      description: '含手作麵包、嫩煎歐姆蛋、溫溫野菜沙拉與香煎培根，開啟放鬆悠閒的一天。',
+      image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 5,
+      category: 'drinks',
+      name: '手沖嚴選單品咖啡',
+      price: 160,
+      description: '依季節嚴選獨立烘豆師豆款，採手沖萃取，風味層次豐富明亮。',
+      image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80'
+    },
+    {
+      id: 6,
+      category: 'desserts',
+      name: '茶香季節戚風蛋糕',
+      price: 130,
+      description: '鬆軟如雲朵般的組織，佐以清爽鮮奶油與有機茶粉，甜而不膩。',
+      image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80'
+    }
+  ];
+
+  const galleryItems = [
+    {
+      img: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80',
+      title: '溫馨客廳老件區',
+      subtitle: '集結主人多年的收藏家具與器物'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80',
+      title: '綠意天井日光',
+      subtitle: '陽光灑落在植物與花器上的午後微光'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80',
+      title: '艸田店貓日常',
+      subtitle: '慵懶曬太陽的可愛夥伴 (點擊有驚喜)'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80',
+      title: '共煮廚房空間',
+      subtitle: '設備齊全，邀請好友一同展現廚藝'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80',
+      title: '藝文展演與獨立選物',
+      subtitle: '支持原創作者與微型展演的舞台'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=800&q=80',
+      title: '慢滴手沖角落',
+      subtitle: '飄散著咖啡豆烘焙香氣的充實下午'
+    }
+  ];
+
+  const filteredMenu = menuFilter === 'all' 
+    ? menuItems 
+    : menuItems.filter(item => item.category === menuFilter);
+
+  const navigateTo = (page) => {
+    setCurrentPage(page);
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
+
+  const handleCatClick = () => {
+    const meows = [
+      '喵～ 歡迎來到艸田，找個位置陪我曬太陽吧！☀️',
+      '喵～ 今天的重乳酪蛋糕香氣好濃呀！🍰',
+      '喵～ 天井的日光最舒服了，記得放慢腳步喔～ 🐾'
+    ];
+    const randomMeow = meows[Math.floor(Math.random() * meows.length)];
+    setCatMeowMessage(randomMeow);
+    setTimeout(() => setCatMeowMessage(''), 4000);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#faf8f5] text-[#2d241e] font-sans antialiased flex flex-col justify-between selection:bg-emerald-200 selection:text-emerald-900">
+      {/* Header Navigation */}
+      <header className="sticky top-0 z-50 bg-[#faf8f5]/90 backdrop-blur-md shadow-sm border-b border-emerald-100/80 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <button onClick={() => navigateTo('home')} className="flex items-center gap-3 group text-left transition-transform active:scale-95">
+              <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center text-xl font-serif font-bold group-hover:bg-emerald-800 group-hover:rotate-6 transition-all shadow-sm">
+                艸
+              </div>
+              <div className="flex flex-col">
+                <span className="font-serif font-bold text-xl tracking-wider text-stone-900 group-hover:text-emerald-800 transition-colors">艸田 空間</span>
+                <span className="text-[10px] tracking-widest text-emerald-700 uppercase">Tsao Tian Space</span>
+              </div>
+            </button>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-8 font-serif">
+              {[
+                { id: 'home', label: '首頁' },
+                { id: 'about', label: '關於艸田' },
+                { id: 'menu', label: '特色菜單' },
+                { id: 'gallery', label: '空間導覽' },
+                { id: 'contact', label: '預約與聯絡' }
+              ].map(link => (
+                <button
+                  key={link.id}
+                  onClick={() => navigateTo(link.id)}
+                  className={`py-2 text-sm font-medium border-b-2 transition-all duration-300 ${
+                    currentPage === link.id
+                      ? 'border-emerald-700 text-emerald-800 font-bold scale-105'
+                      : 'border-transparent text-stone-700 hover:text-emerald-700 hover:border-emerald-300'
+                  }`}
+                >
+                  {link.label}
+                </button>
+              ))}
+            </nav>
+
+            {/* CTA & Mobile Hamburger */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigateTo('contact')}
+                className="hidden sm:inline-flex items-center px-4 py-2 rounded-full bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 hover:shadow-lg active:scale-95 transition-all shadow-sm"
+              >
+                <i className="fa-solid fa-calendar-check mr-2 animate-pulse"></i> 線上預約
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-stone-800 hover:bg-emerald-50 focus:outline-none transition-colors"
+              >
+                <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#faf8f5] border-b border-emerald-100 px-4 pt-2 pb-6 space-y-3 font-serif shadow-lg animate-fadeIn">
+            {[
+              { id: 'home', label: '首頁' },
+              { id: 'about', label: '關於艸田' },
+              { id: 'menu', label: '特色菜單' },
+              { id: 'gallery', label: '空間導覽' },
+              { id: 'contact', label: '預約與聯絡' }
+            ].map(link => (
+              <button
+                key={link.id}
+                onClick={() => navigateTo(link.id)}
+                className={`block w-full text-left px-4 py-2.5 rounded-xl text-base font-medium transition-all ${
+                  currentPage === link.id ? 'bg-emerald-100 text-emerald-900 font-bold shadow-sm' : 'text-stone-900 hover:bg-emerald-50'
+                }`}
+              >
+                {link.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </header>
+
+      {/* Dynamic Page Rendering */}
+      <main className="flex-1 transition-all duration-300">
+        {currentPage === 'home' && (
+          <div className="space-y-20 pb-16">
+            {/* Hero Section */}
+            <section className="relative min-h-[calc(100vh-10rem)] flex items-center pt-12 pb-16">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                  <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100/80 text-emerald-800 text-xs font-semibold tracking-wider shadow-sm animate-bounce">
+                      <i className="fa-solid fa-seedling"></i> 台中北區老宅藝文私廚聚落
+                    </div>
+                    <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-stone-900 leading-tight">
+                      宛如走進朋友家的客廳，<br className="hidden sm:inline" />
+                      品嚐有溫度的慢食光。
+                    </h1>
+                    <p className="text-stone-600 text-base sm:text-lg max-w-2xl leading-relaxed mx-auto lg:mx-0">
+                      藏身於台中育德路巷弄，這裡不只是咖啡館，更是一個結合獨立藝文、溫馨私廚體驗與綠意選物的感性空間。
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                      <button
+                        onClick={() => navigateTo('about')}
+                        className="w-full sm:w-auto text-center px-6 py-3.5 rounded-full bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-serif text-sm font-medium transition-all shadow-md hover:shadow-lg"
+                      >
+                        探索品牌故事 <i className="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                      </button>
+                      <button
+                        onClick={() => navigateTo('menu')}
+                        className="w-full sm:w-auto text-center px-6 py-3.5 rounded-full bg-white hover:bg-emerald-50 active:scale-95 text-stone-800 border border-emerald-200 font-serif text-sm font-medium transition-all shadow-sm"
+                      >
+                        瀏覽特色菜單
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5">
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-white group cursor-pointer hover:shadow-emerald-900/10 transition-all duration-500">
+                      <img
+                        src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80"
+                        alt="艸田空間環境"
+                        className="w-full h-80 sm:h-96 object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                      <div className="absolute bottom-4 left-4 right-4 text-white font-serif">
+                        <p className="text-sm font-bold">育德路老宅巷弄聚落</p>
+                        <p className="text-xs text-stone-200">自然流淌的暖陽與人文質感</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Teaser 1: About Us Teaser */}
+            <section className="bg-white py-16 border-y border-stone-200/60">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  <div className="lg:col-span-6 space-y-4">
+                    <span className="text-xs font-semibold text-emerald-700 uppercase tracking-widest">About Preview</span>
+                    <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">老宅裡的家常溫度與獨特私廚</h2>
+                    <p className="text-stone-600 text-sm sm:text-base leading-relaxed">
+                      [艸田 空間] 遠離商業氣息，集結主人多年的收藏家具與生活痕跡。除了咖啡與手作餐飲，我們更提供極具特色的「親友共煮廚房體驗」與代購食材服務...
+                    </p>
+                    <button
+                      onClick={() => navigateTo('about')}
+                      className="inline-flex items-center text-emerald-700 font-serif text-sm font-bold hover:text-emerald-900 group"
+                    >
+                      查看完整品牌故事與不可替代特色 <i className="fa-solid fa-chevron-right ml-1 text-xs group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                  </div>
+                  <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+                    <div className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80" alt="艸田角落" className="h-40 w-full object-cover hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow mt-4">
+                      <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80" alt="艸田甜點" className="h-40 w-full object-cover hover:scale-105 transition-transform duration-500" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Teaser 2: Featured Menu Preview */}
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+                <div>
+                  <span className="text-xs font-semibold text-emerald-700 uppercase tracking-widest">Menu Highlights</span>
+                  <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">特色餐食與獨特特調</h2>
+                </div>
+                <button
+                  onClick={() => navigateTo('menu')}
+                  className="mt-4 md:mt-0 text-emerald-700 font-serif text-sm font-bold flex items-center hover:text-emerald-900 group"
+                >
+                  查看完整菜單與甜點 <i className="fa-solid fa-arrow-right ml-2 text-xs group-hover:translate-x-1 transition-transform"></i>
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {menuItems.slice(0, 3).map(item => (
+                  <div key={item.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-stone-200 hover:-translate-y-1.5 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                      <div className="overflow-hidden h-40">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                      </div>
+                      <div className="p-5">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-serif text-base font-bold text-stone-900">{item.name}</h3>
+                          <span className="text-emerald-700 font-bold text-xs bg-emerald-50 px-2 py-0.5 rounded">NT$ {item.price}</span>
+                        </div>
+                        <p className="text-stone-500 text-xs line-clamp-2 leading-relaxed">{item.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Teaser 3: Gallery Preview */}
+            <section className="bg-white py-16 border-y border-stone-200/60">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+                  <div>
+                    <span className="text-xs font-semibold text-emerald-700 uppercase tracking-widest">Space & Atmosphere</span>
+                    <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">老宅空間與藝文角落</h2>
+                  </div>
+                  <button
+                    onClick={() => navigateTo('gallery')}
+                    className="mt-4 md:mt-0 text-emerald-700 font-serif text-sm font-bold flex items-center hover:text-emerald-900 group"
+                  >
+                    進入空間完整導覽 <i className="fa-solid fa-arrow-right ml-2 text-xs group-hover:translate-x-1 transition-transform"></i>
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {galleryItems.slice(0, 3).map((item, index) => (
+                    <div key={index} className="relative overflow-hidden rounded-xl shadow-sm aspect-4/3 group cursor-pointer hover:-translate-y-1 transition-all duration-300" onClick={() => navigateTo('gallery')}>
+                      <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 flex flex-col justify-end text-white">
+                        <p className="font-serif text-sm font-bold">{item.title}</p>
+                        <p className="text-[11px] text-stone-200">{item.subtitle}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Teaser 4: Contact & Location Quick Info */}
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="bg-stone-900 text-white rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+                <div className="space-y-2 text-center md:text-left z-10">
+                  <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Visit Us</span>
+                  <h2 className="font-serif text-2xl sm:text-3xl font-bold">準備好來艸田坐坐了嗎？</h2>
+                  <p className="text-stone-300 text-sm">台中市北區育德路巷弄內 | 11:00 - 19:00 (週一二固定公休)</p>
+                </div>
+                <button
+                  onClick={() => navigateTo('contact')}
+                  className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-full font-serif text-sm font-medium transition-all shrink-0 shadow-md z-10"
+                >
+                  前往線上預約頁面 <i className="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+                <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-emerald-700/20 rounded-full blur-2xl"></div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {currentPage === 'about' && (
+          <section className="py-16 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-3xl mx-auto mb-16">
+                <h2 className="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-2">About Us</h2>
+                <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">關於 艸田 空間</h1>
+                <div className="w-12 h-1 bg-emerald-700 mx-auto mt-4 rounded-full"></div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+                <div className="space-y-6">
+                  <h3 className="font-serif text-2xl font-bold text-stone-900 leading-snug">
+                    「這裡不像一家商業店家，更像一位老朋友溫馨的家。」
+                  </h3>
+                  <p className="text-stone-600 leading-relaxed text-sm sm:text-base">
+                    [艸田 空間] 隱身於台中北區育德路的小巷內，是由一棟老宅改建而成的複合式藝文聚落。主人多年累積的生活器物、斑駁的老件家具、隨處蔓延的綠色植栽，以及在陽光下伸懶腰的貓咪，勾勒出獨一無二的生活美學。
+                  </p>
+                  <p className="text-stone-600 leading-relaxed text-sm sm:text-base">
+                    我們拒絕連鎖商業咖啡館的冷冰感，在這裡您可以放慢步調，沉浸在充滿生活感的角落，享用家常現做餐點與咖啡。
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80" alt="艸田角落" className="rounded-xl shadow-md h-52 w-full object-cover hover:scale-105 transition-transform duration-500" />
+                  <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80" alt="艸田咖啡" className="rounded-xl shadow-md h-52 w-full object-cover mt-6 hover:scale-105 transition-transform duration-500" />
+                </div>
+              </div>
+
+              {/* Target Audience Interactive Cards */}
+              <div className="mt-16 bg-[#faf8f5] p-8 sm:p-12 rounded-3xl border border-emerald-100">
+                <div className="text-center mb-10">
+                  <h3 className="font-serif text-2xl font-bold text-stone-900">核心獨特性與目標客群</h3>
+                  <p className="text-stone-500 text-sm mt-2">為什麼 [艸田 空間] 在台中無法被替代？</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 hover:-translate-y-1 transition-all">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl mb-4">
+                      <i className="fa-solid fa-users"></i>
+                    </div>
+                    <h4 className="font-serif font-bold text-lg text-stone-900 mb-2">專屬的獨特客群</h4>
+                    <p className="text-xs text-stone-600 leading-relaxed">
+                      獨立創作者、偏好人情味的在地熟客與尋求隱私聚會的家庭團體。
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 hover:-translate-y-1 transition-all">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl mb-4">
+                      <i className="fa-solid fa-kitchen-set"></i>
+                    </div>
+                    <h4 className="font-serif font-bold text-lg text-stone-900 mb-2">友善共煮私廚</h4>
+                    <p className="text-xs text-stone-600 leading-relaxed">
+                      提供設備完善的共享廚房，支援親友自带食材共煮或代購食材體驗。
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 hover:-translate-y-1 transition-all">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl mb-4">
+                      <i className="fa-solid fa-seedling"></i>
+                    </div>
+                    <h4 className="font-serif font-bold text-lg text-stone-900 mb-2">家常手作風味</h4>
+                    <p className="text-xs text-stone-600 leading-relaxed">
+                      招牌香氣家常炒飯、獨特特調牧草汁與自慢重乳酪，無可替代的手作感。
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {currentPage === 'menu' && (
+          <section className="py-16 bg-[#faf8f5]">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-3xl mx-auto mb-12">
+                <h2 className="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-2">Menu</h2>
+                <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">艸田 溫心手作菜單</h1>
+                <div className="w-12 h-1 bg-emerald-700 mx-auto mt-4 rounded-full"></div>
+              </div>
+
+              {/* Menu Filter Tabs */}
+              <div className="flex justify-center flex-wrap gap-2 mb-12">
+                {[
+                  { id: 'all', label: '全部品項' },
+                  { id: 'mains', label: '家常私房餐食' },
+                  { id: 'desserts', label: '手作甜點' },
+                  { id: 'drinks', label: '特調飲品與咖啡' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setMenuFilter(tab.id)}
+                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all active:scale-95 ${
+                      menuFilter === tab.id
+                        ? 'bg-emerald-700 text-white shadow-md scale-105'
+                        : 'bg-white text-stone-800 hover:bg-emerald-50 border border-emerald-200'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Dynamic Menu Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredMenu.map(item => (
+                  <div key={item.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-stone-200 flex flex-col hover:-translate-y-1.5 hover:shadow-lg transition-all duration-300">
+                    <div className="overflow-hidden h-48">
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div className="p-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-serif text-lg font-bold text-stone-900">{item.name}</h4>
+                          <span className="text-emerald-700 font-bold text-sm bg-emerald-50 px-2.5 py-1 rounded-md">NT$ {item.price}</span>
+                        </div>
+                        <p className="text-stone-500 text-xs leading-relaxed mt-2">{item.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {currentPage === 'gallery' && (
+          <section className="py-16 bg-white relative">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-3xl mx-auto mb-12">
+                <h2 className="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-2">Gallery & Cats</h2>
+                <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">空間導覽與藝文角落</h1>
+                <p className="text-stone-500 text-xs mt-2">提示：點擊「艸田店貓」相片可與貓咪互動喔！🐾</p>
+                <div className="w-12 h-1 bg-emerald-700 mx-auto mt-4 rounded-full"></div>
+              </div>
+
+              {/* Interactive Cat Speech Bubble Notification */}
+              {catMeowMessage && (
+                <div className="mb-8 p-4 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-2xl text-center font-serif text-sm animate-bounce shadow-sm">
+                  <i className="fa-solid fa-cat mr-2"></i> {catMeowMessage}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {galleryItems.map((item, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      if (item.title.includes('店貓')) handleCatClick();
+                    }}
+                    className="group relative overflow-hidden rounded-2xl shadow-sm aspect-4/3 cursor-pointer hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
+                  >
+                    <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end text-white">
+                      <p className="font-serif text-lg font-bold">{item.title}</p>
+                      <p className="text-xs text-stone-200 mt-1">{item.subtitle}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {currentPage === 'contact' && (
+          <section className="py-16 bg-[#faf8f5]">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-3xl mx-auto mb-16">
+                <h2 className="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-2">Contact & Calculator</h2>
+                <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">預約與私廚體驗計算器</h1>
+                <div className="w-12 h-1 bg-emerald-700 mx-auto mt-4 rounded-full"></div>
+              </div>
+
+              {/* Interactive Co-Cooking Calculator Widget */}
+              <div className="mb-12 bg-white p-6 sm:p-8 rounded-3xl border border-emerald-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                    <i className="fa-solid fa-calculator"></i>
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-stone-900">共煮體驗估算小工具</h3>
+                    <p className="text-xs text-stone-500">動態調整人數與食材需求，即時預估費用</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-2">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        預計參與人數：<span className="text-emerald-700 font-bold text-sm">{calcGuests} 人</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="2"
+                        max="12"
+                        value={calcGuests}
+                        onChange={(e) => setCalcGuests(parseInt(e.target.value))}
+                        className="w-full accent-emerald-700 cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="ingredientHelp"
+                        checked={needIngredientHelp}
+                        onChange={(e) => setNeedIngredientHelp(e.target.checked)}
+                        className="rounded text-emerald-700 focus:ring-emerald-600"
+                      />
+                      <label htmlFor="ingredientHelp" className="text-xs text-stone-700 font-medium cursor-pointer">
+                        需要艸田協助代購新鮮食材 (+NT$ 150/人)
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
+                    <p className="text-xs text-emerald-800 uppercase font-semibold tracking-wider">預估體驗基本費用</p>
+                    <p className="font-serif text-3xl font-bold text-emerald-900 mt-1">
+                      NT$ {calcGuests * (needIngredientHelp ? 400 : 250)}
+                    </p>
+                    <p className="text-[11px] text-stone-500 mt-1">含廚房設備使用、基本調味與清潔費用</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form & Contact Details */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div className="lg:col-span-5 space-y-6">
+                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-200 space-y-6">
+                    <h3 className="font-serif text-xl font-bold text-stone-900 border-b border-stone-100 pb-4">店面資訊</h3>
+                    <p className="text-sm text-stone-600"><i className="fa-solid fa-location-dot text-emerald-700 mr-2"></i> 台中市北區育德路巷弄內</p>
+                    <p className="text-sm text-stone-600"><i className="fa-solid fa-clock text-emerald-700 mr-2"></i> 11:00 - 19:00 (週一二固定公休)</p>
+                    <p className="text-sm text-stone-600"><i className="fa-solid fa-phone text-emerald-700 mr-2"></i> 04-2201-XXXX (歡迎電話洽詢)</p>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-stone-200">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="您的姓名 *" required className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:border-emerald-700" />
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="聯絡電話 *" required className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:border-emerald-700" />
+                    <button type="submit" className="w-full py-3.5 rounded-full bg-emerald-700 text-white font-semibold hover:bg-emerald-800 active:scale-95 transition-all shadow-md">
+                      送出預約申請 <i className="fa-solid fa-paper-plane ml-2"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-stone-900 text-stone-100 py-12 border-t border-stone-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center font-serif text-lg">艸</div>
+            <div>
+              <span className="font-serif font-bold text-lg text-white">艸田 空間</span>
+              <span className="text-[10px] text-stone-400 block tracking-widest uppercase">Tsao Tian Space</span>
+            </div>
+          </div>
+          <div className="flex space-x-6 text-sm font-serif text-stone-300">
+            {['home', 'about', 'menu', 'gallery', 'contact'].map(p => (
+              <button key={p} onClick={() => navigateTo(p)} className="hover:text-white transition-colors capitalize">{p}</button>
+            ))}
+          </div>
+        </div>
+      </footer>
+
+      {/* Reservation Confirmation Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-xl scale-100 transition-transform">
+            <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-xl">
+              <i className="fa-solid fa-check"></i>
+            </div>
+            <h3 className="font-serif text-xl font-bold text-stone-900">預約申請已送出！</h3>
+            <p className="text-sm text-stone-600">感謝您的留言與預約，艸田團隊會盡快與您電話確認席位。</p>
+            <button onClick={() => setIsModalOpen(false)} className="w-full py-2.5 bg-emerald-700 text-white rounded-full hover:bg-emerald-800 active:scale-95 transition-colors">確認</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
